@@ -32,6 +32,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
+gem 'rack'
+
 group :development, :test do
   gem 'factory_girl_rails'
   gem 'pry-rails'

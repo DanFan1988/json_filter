@@ -21,6 +21,9 @@ module Filter
     # config.i18n.default_locale = :de
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
+    require_relative '../lib/json_filter'
+    config.middleware.use "JsonFilter"
+    
     config.active_record.raise_in_transactional_callbacks = true
   end
 end

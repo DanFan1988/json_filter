@@ -4,14 +4,40 @@ class JsonFilter
   end
 
   def call(env)
-    store_parser if env["PATH_INFO"] == "/store"
-    [200, {"Content-Type" => "text/html"}, ["Hello, World!"]]
+    @env = env
+    @request = Rack::Request.new(env)
+    status, headers, body = @app.call(env)
+
+    @response = Rack::Response.new(body, status, headers)
+    # binding.pry
+    apply_response_filters if filter_fields?
+
+    @response.finish
   end
 
-  def store_parser
-    
+  def filter_fields?
+    @request.params["fields"] && !@request.params["fields"].empty?
+  end
+
+  def filter_fields
+    @request.params["fields"].split(",")
+  end
+
+  def apply_response_filters
+    @response.body = [filtered_parsed_response.to_json]
+  end
+
+  def filtered_parsed_response
+    if parsed_response.class == Hash
+      parsed_response.select { |k,y| filter_fields.include?(k)}
+    else
+      parsed_response.map do |hash|
+        hash.select { |k,y| filter_fields.include?(k)}
+      end
+    end
+  end
+
+  def parsed_response
+    JSON.parse(@response.body.first)
   end
 end
-
-# "PATH_INFO"=>"/stores/1",
-# "QUERY_STRING"=>"fields=store_id,name",
